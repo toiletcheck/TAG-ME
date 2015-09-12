@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -31,12 +32,14 @@ import retrofit.Retrofit;
 
 public class Home extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    //private static final long UPDATE_INTERVAL = ;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private JSONObject obj;
     private Location mLastLocation;
     private double mLatitudeDouble;
     private double mLongitudeDouble;
     private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
 
 
     @Override
@@ -44,8 +47,8 @@ public class Home extends FragmentActivity implements GoogleApiClient.Connection
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this);
-        
+       // x_y_reader();
+
 
         setUpMapIfNeeded();
         Retrofit retrofit = new Retrofit.Builder()
@@ -110,7 +113,21 @@ public class Home extends FragmentActivity implements GoogleApiClient.Connection
 
 
     }
+/*
+    private void x_y_reader() {
+        mLocationClient = new GoogleApiClient.Builder(getApplicationContext())
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
 
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+    }
+*/
     @Override
     protected void onResume() {
         super.onResume();
