@@ -3,9 +3,13 @@ package com.tcc.gian_luca.test;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -15,6 +19,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.okhttp.ResponseBody;
 
@@ -24,13 +29,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-public class Home extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class Home extends FragmentActivity implements GoogleMap.OnMarkerClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, RatingDialog.OnFragmentInteractionListener {
 
     //private static final long UPDATE_INTERVAL = ;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -40,6 +46,7 @@ public class Home extends FragmentActivity implements GoogleApiClient.Connection
     private double mLongitudeDouble;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    private HashMap<Marker, Integer> Marker2ID;
 
 
     @Override
@@ -55,10 +62,12 @@ public class Home extends FragmentActivity implements GoogleApiClient.Connection
                 .baseUrl("http://geoportal1.stadt-koeln.de")
                 .build();
 
-             TCC service = retrofit.create(TCC.class);
+        TCC service = retrofit.create(TCC.class);
 
 
         Call<ResponseBody>result = service.listHotSpot();
+
+
 
             result.enqueue(new Callback<ResponseBody>() {
                 @Override
@@ -82,15 +91,19 @@ public class Home extends FragmentActivity implements GoogleApiClient.Connection
                     if (obj != null) {
                         try {
                             JSONArray features = obj.getJSONArray("features");
+                            Marker2ID = new HashMap<Marker, Integer>();
 
                             for (int i = 0; i < features.length(); i++) {
 
                                 JSONObject jobj = features.getJSONObject(i);
                                 double x = jobj.getJSONObject("geometry").getDouble("y");
                                 double y = jobj.getJSONObject("geometry").getDouble("x");
-                               // long name =  jobj.getJSONObject("attributes").getLong("BETREIBER");
+                                String n = jobj.getJSONObject("attributes").getString("BETREIBER");
+                                Integer Id = jobj.getJSONObject("attributes").getInt("OBJECTID");
 
-                                mMap.addMarker(new MarkerOptions().position(new LatLng(x, y)).title("Marker"));
+
+                                Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(x, y)).title(n));
+                                Marker2ID.put(marker, Id);
 
                             }
                         } catch (JSONException e) {
@@ -168,8 +181,15 @@ public class Home extends FragmentActivity implements GoogleApiClient.Connection
      * <p/>
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
+
+
+
+
+
     private void setUpMap() {
         mMap.setMyLocationEnabled(true);
+        mMap.setOnMarkerClickListener(this);
+
 
     }
 
@@ -189,6 +209,20 @@ public class Home extends FragmentActivity implements GoogleApiClient.Connection
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+
+        DialogFragment newFragment = RatingDialog.newInstance(marker.getTitle(), 0, Marker2ID.get(marker));
+        newFragment.show(getSupportFragmentManager(), "dialog");
+
+        return true;
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
 
     }
 }
