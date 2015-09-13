@@ -12,10 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.cast.Cast;
 import com.squareup.okhttp.ResponseBody;
+
+import org.w3c.dom.Text;
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -78,10 +81,15 @@ public class RatingDialog extends DialogFragment {
 
                 sendRating(vi.findViewById(R.id.ratingBar));
             }
+
         });
+
+        TextView name = (TextView)vi.findViewById(R.id.name);
+        name.setText(mName);
 
 
         return vi;
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -115,7 +123,7 @@ public class RatingDialog extends DialogFragment {
                 .baseUrl("http://192.168.100.88")
                 .build();
 
-        
+
 
         RatingBar ratingbar = (RatingBar) v;
 
@@ -131,7 +139,9 @@ public class RatingDialog extends DialogFragment {
             @Override
             public void onResponse(Response<ResponseBody> response) {
                 if (response.isSuccess()) {
-                Toast.makeText(getActivity(),"Sucsess", Toast.LENGTH_LONG);}
+                Toast.makeText(getActivity(),"Sucsess", Toast.LENGTH_LONG);
+                dismiss();
+                }
             }
 
             @Override
